@@ -1,0 +1,9 @@
+[package]
+name = "sys-ressources"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sysinfo = "0.36.1"
+termion = "4.0.5"
+tui = { version = "0.19", default-features = false, features = ['termion'] }
