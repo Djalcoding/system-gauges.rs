@@ -1,6 +1,6 @@
 pub mod UI {
 
-    use sysinfo::System;
+    use sysinfo::{Disks, System};
     use tui::{
         Frame,
         backend::Backend,
@@ -8,17 +8,12 @@ pub mod UI {
         style::{Color, Modifier, Style},
         widgets::{Block, Borders, Gauge},
     };
-    pub fn ui<B: Backend>(f: &mut Frame<B>) {
-        let mut sys = System::new_all();
-        sys.refresh_all();
-        let gauge = Gauge::default()
+
+    pub fn build_gauge(used: u64, total: u64, name: String) -> Gauge<'static> {
+        Gauge::default()
             .block(
                 Block::default()
-                    .title(format!(
-                        "RAM USAGE ({} B / {} B )",
-                        sys.used_memory(),
-                        sys.total_memory()
-                    ))
+                    .title(format!("{name} USAGE ({used} B / {total} B )",))
                     .borders(Borders::ALL),
             )
             .gauge_style(
@@ -27,13 +22,54 @@ pub mod UI {
                     .bg(Color::Black)
                     .add_modifier(Modifier::BOLD),
             )
-            .percent(((sys.used_memory() as f64 / sys.total_memory() as f64) * 100.0) as u16);
+            .percent(((used as f64 / total as f64) * 100.0) as u16)
+    }
+
+    pub fn build_gauge_percent(used: u16, name: String) -> Gauge<'static> {
+        Gauge::default()
+            .block(
+                Block::default()
+                    .title(format!("{name} USAGE ({used}%)",))
+                    .borders(Borders::ALL),
+            )
+            .gauge_style(
+                Style::default()
+                    .fg(Color::White)
+                    .bg(Color::Black)
+                    .add_modifier(Modifier::BOLD),
+            )
+            .percent(used)
+    }
+    pub fn ui<B: Backend>(f: &mut Frame<B>) {
+        let mut sys = System::new_all();
+        sys.refresh_all();
+
+        let mut gauge_list = vec![
+            build_gauge(sys.used_memory(), sys.total_memory(), String::from("RAM")), // used RAM
+            build_gauge(sys.used_swap(), sys.total_swap(), String::from("SWAP")),    // used SWAP
+            build_gauge_percent(sys.global_cpu_usage() as u16, String::from("CPU")), // CPU
+        ];
+
+        let disks = Disks::new_with_refreshed_list();
+
+        for disk in &disks { 
+           gauge_list.push(build_gauge(disk.total_space()- disk.available_space(), disk.total_space(), disk.name().to_str().unwrap_or("Unknow name").to_string())); 
+        }
+
+        let mut constraints = vec![Constraint::Percentage((100 / gauge_list.len()) as u16)];
+
+        for _ in &gauge_list {
+            constraints.push(Constraint::Percentage((100 / gauge_list.len()) as u16));
+        }
 
         let chunks = Layout::default()
             .direction(tui::layout::Direction::Vertical)
             .margin(1)
-            .constraints([Constraint::Percentage(20), Constraint::Percentage(60)].as_ref())
+            .constraints(constraints)
             .split(f.size());
-        f.render_widget(gauge, chunks[0]);
+
+        for (i, gauge) in gauge_list.into_iter().enumerate() {
+            f.render_widget(gauge, chunks[i]);
+        }
     }
 }
