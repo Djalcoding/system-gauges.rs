@@ -137,15 +137,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sys-ressources"
-version = "0.1.0"
-dependencies = [
- "sysinfo",
- "termion 4.0.5",
- "tui",
-]
-
-[[package]]
 name = "sysinfo"
 version = "0.36.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -157,6 +148,15 @@ dependencies = [
  "objc2-core-foundation",
  "objc2-io-kit",
  "windows",
+]
+
+[[package]]
+name = "system-gauges"
+version = "0.1.0"
+dependencies = [
+ "sysinfo",
+ "termion 4.0.5",
+ "tui",
 ]
 
 [[package]]
