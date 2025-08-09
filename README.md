@@ -27,17 +27,38 @@ cd system-gauges
 ```bash
 cargo build --release
 ```
-3. *Add the it to path:*
+3. *Add "current working directory"/target/release to path:*
+   for bash : 
 ```bash
 echo 'export PATH=$PATH:/home/path/to/current/directory/target/release' >> ~/.bashrc
 ```
-
-```zsh
+  for zsh:
+```zsh 
 echo 'export PATH=$PATH:/home/path/to/current/directory/target/release' >> ~/.zshrc
 ```
+
+### Prerequisites
+- Rust toolchain  (recommended: use [rustup](https://rustup.rs/))
 
 ### Note
 you can also simply download the binary from the release section and add it to path.
 
-### Prerequisites
-- Rust toolchain installed (recommended: use [rustup](https://rustup.rs/))
+## Usage
+Help :
+```bash
+system-gauges -h
+```
+Default : 
+```bash
+system-gauges
+```
+
+Colors : 
+```bash
+system-gauges -c blue -d red
+```
+the colors are defined by your TE.
+
+## Notes
+- The script currently as linux support as it uses termion, (it should also work on Mac-OS)
+
