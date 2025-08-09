@@ -17,8 +17,19 @@ If you have more than one disk the gauges will be sized approprietly to all fit 
 
 ## Installation
 
+*Clone the repo and cd into the directory:*
 ```bash
-git clone
+git clone https://github.com/Djalcoding/system-gauges.rs.git
+cd system-gauges
+```
+
+*Compile the binary:* 
+```bash
+cargo build --release
+```
+*Add the binary to path*
+```bash
+
 ```
 
 ### Prerequisites
