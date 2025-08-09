@@ -17,20 +17,27 @@ If you have more than one disk the gauges will be sized approprietly to all fit 
 
 ## Installation
 
-*Clone the repo and cd into the directory:*
+1. *Clone the repo and cd into the directory:*
 ```bash
 git clone https://github.com/Djalcoding/system-gauges.rs.git
 cd system-gauges
 ```
 
-*Compile the binary:* 
+2. *Compile the binary:* 
 ```bash
 cargo build --release
 ```
-*Add the binary to path*
+3. *Add the it to path:*
 ```bash
-
+echo 'export PATH=$PATH:/home/path/to/the/directory/target/release' >> ~/.bashrc
 ```
+
+```zsh
+echo 'export PATH=$PATH:/home/path/to/the/directory/target/release' >> ~/.zshrc
+```
+
+### Note
+you can also simply download the binary from the release section and add it to path.
 
 ### Prerequisites
 - Rust toolchain installed (recommended: use [rustup](https://rustup.rs/))
