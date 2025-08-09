@@ -29,11 +29,11 @@ cargo build --release
 ```
 3. *Add the it to path:*
 ```bash
-echo 'export PATH=$PATH:/home/path/to/the/directory/target/release' >> ~/.bashrc
+echo 'export PATH=$PATH:/home/path/to/current/directory/target/release' >> ~/.bashrc
 ```
 
 ```zsh
-echo 'export PATH=$PATH:/home/path/to/the/directory/target/release' >> ~/.zshrc
+echo 'export PATH=$PATH:/home/path/to/current/directory/target/release' >> ~/.zshrc
 ```
 
 ### Note
