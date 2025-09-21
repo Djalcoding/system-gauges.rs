@@ -8,7 +8,7 @@ use std::{
 use system_gauges::ui::colors::get_color_from_string;
 use system_gauges::ui::ui;
 
-use termion::{clear, input::TermRead, raw::IntoRawMode};
+use termion::{clear, input::TermRead, raw::IntoRawMode, screen::{ToAlternateScreen, ToMainScreen}};
 use tui::{Terminal, backend::TermionBackend, style::Color};
 fn main() -> Result<(), io::Error> {
 
@@ -20,7 +20,7 @@ fn main() -> Result<(), io::Error> {
     let stdout = io::stdout().into_raw_mode()?;
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
-    println!("{}", clear::All);
+    println!("{}", ToAlternateScreen);
     let (tx, rx) = mpsc::channel();
     thread::spawn(move || {
         let stdin = stdin();
@@ -40,8 +40,8 @@ fn main() -> Result<(), io::Error> {
             ui(f, gauge_colors.0, gauge_colors.1);
         });
     }
+    println!("{}", ToMainScreen);
 
-    println!("{}", clear::All);
     Ok(())
 }
 
