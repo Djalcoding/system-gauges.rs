@@ -2,10 +2,7 @@ pub mod ui {
 
     use sysinfo::{Disks, System};
     use tui::{
-        Frame,
-        backend::Backend,
-        layout::{Constraint, Layout},
-        style::Color,
+        backend::Backend, layout::{Constraint, Layout}, style::Color, widgets::{BorderType, Borders}, Frame
     };
 
     pub mod colors {
@@ -43,10 +40,10 @@ pub mod ui {
 
         use tui::{
             style::{Color, Modifier, Style},
-            widgets::{Block, Borders, Gauge},
+            widgets::{Block, BorderType, Borders, Gauge},
         };
         pub fn build_gauge(used: u64, total: u64, name: String) -> Gauge<'static> {
-            build_colorful_gauge(used, total, name, Color::White)
+            build_colorful_gauge(used, total, name, Color::White, &Borders::ALL,&true)
         }
 
         pub fn build_colorful_gauge(
@@ -54,17 +51,19 @@ pub mod ui {
             total: u64,
             name: String,
             color: Color,
+            borders:&Borders,
+            background:&bool
         ) -> Gauge<'static> {
             Gauge::default()
                 .block(
                     Block::default()
                         .title(format!("{name} USAGE ({used} B / {total} B )",))
-                        .borders(Borders::ALL),
+                        .borders(*borders),
                 )
                 .gauge_style(
                     Style::default()
                         .fg(color)
-                        .bg(Color::Black)
+                        .bg(if *background {Color::Black} else {Color::Reset})
                         .add_modifier(Modifier::BOLD),
                 )
                 .percent(((used as f64 / total as f64) * 100.0) as u16)
@@ -74,29 +73,31 @@ pub mod ui {
             used: u16,
             name: String,
             color: Color,
+            borders:&Borders,
+            background:&bool
         ) -> Gauge<'static> {
             Gauge::default()
                 .block(
                     Block::default()
                         .title(format!("{name} USAGE ({used}%)",))
-                        .borders(Borders::ALL),
+                        .borders(*borders),
                 )
                 .gauge_style(
                     Style::default()
                         .fg(color)
-                        .bg(Color::Black)
+                        .bg(if *background {Color::Black} else {Color::Reset})
                         .add_modifier(Modifier::BOLD),
                 )
                 .percent(used)
         }
 
         pub fn build_gauge_percent(used: u16, name: String) -> Gauge<'static> {
-            build_colorful_gauge_percent(used, name, Color::White)
+            build_colorful_gauge_percent(used, name, Color::White, &Borders::ALL, &true)
         }
     }
 
     use gauges::*;
-    pub fn ui<B: Backend>(f: &mut Frame<B>, color: Color, disk_color: Color) {
+    pub fn ui<B: Backend>(f: &mut Frame<B>, color: Color, disk_color: Color, borders:&Borders, background:&bool) { //TODO : Put this into a struct
         let mut sys = System::new_all();
         sys.refresh_all();
         let mut gauge_list = vec![
@@ -105,14 +106,19 @@ pub mod ui {
                 sys.total_memory(),
                 String::from("RAM"),
                 color,
+                borders,
+                background
+                
             ), // used RAM
             build_colorful_gauge(
                 sys.used_swap(),
                 sys.total_swap(),
                 String::from("SWAP"),
                 color,
+                borders,
+                background
             ), // used SWAP
-            build_colorful_gauge_percent(sys.global_cpu_usage() as u16, String::from("CPU"), color), // CPU
+            build_colorful_gauge_percent(sys.global_cpu_usage() as u16, String::from("CPU"), color, borders,background), // CPU
         ];
 
         let disks = Disks::new_with_refreshed_list();
@@ -123,6 +129,8 @@ pub mod ui {
                 disk.total_space(),
                 disk.name().to_str().unwrap_or("Unknow name").to_string(),
                 disk_color,
+                borders,
+                background
             ));
         }
 

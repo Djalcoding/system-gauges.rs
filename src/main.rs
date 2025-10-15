@@ -9,43 +9,45 @@ use system_gauges::ui::colors::get_color_from_string;
 use system_gauges::ui::ui;
 
 use termion::{clear, input::TermRead, raw::IntoRawMode, screen::{ToAlternateScreen, ToMainScreen}};
-use tui::{Terminal, backend::TermionBackend, style::Color};
+use tui::{backend::TermionBackend, style::Color, widgets::Borders, Terminal};
 fn main() -> Result<(), io::Error> {
 
-    let gauge_colors = get_colors_from_arguments().unwrap_or_else(|e|{
-        eprintln!("{e}");
-        process::exit(100);
-    });
     //build Terminal
+    let mut borders = Borders::ALL;
+    let mut background = true;
+    let mut end:bool = false;
+    let gauge_colors = parse_arguments(&mut borders, &mut background).unwrap_or_else(|e|{
+        eprintln!("{e}");
+        end = true;
+        (Color::White, Color::White)
+    });
     let stdout = io::stdout().into_raw_mode()?;
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
-    println!("{}", ToAlternateScreen);
+    println!("{ToAlternateScreen}");
     let (tx, rx) = mpsc::channel();
     thread::spawn(move || {
         let stdin = stdin();
-        for c in stdin.keys() {
-            if let Ok(key) = c {
-                tx.send(key).err();
-            }
+        for c in stdin.keys().flatten() {
+                tx.send(c).err();
         }
     });
 
     loop {
         // game loop
-        if let Ok(..) = rx.try_recv() {
+        if rx.try_recv().is_ok() || end{
             break;
         }
         let _ = terminal.draw(|f| {
-            ui(f, gauge_colors.0, gauge_colors.1);
+            ui(f, gauge_colors.0, gauge_colors.1, &borders, &background);
         });
     }
-    println!("{}", ToMainScreen);
+    println!("{ToMainScreen}");
 
     Ok(())
 }
 
-fn get_colors_from_arguments() -> Result<(Color, Color), String> {
+fn parse_arguments(borders:& mut Borders, background:&mut bool) -> Result<(Color, Color), String> { // TODO: CHANGE
     let arguments: Vec<String> = env::args().collect();
     let mut color = Color::White;
     let mut disk_color = Color::White;
@@ -56,7 +58,7 @@ fn get_colors_from_arguments() -> Result<(Color, Color), String> {
             continue;
         }
         match arg.as_str() {
-            "-c" => {
+            "-c" | "--color" => {
                 if i == arguments.len() - 1 {
                     
                     return Err(String::from("Please specify a color when you use '-c' "));
@@ -65,7 +67,7 @@ fn get_colors_from_arguments() -> Result<(Color, Color), String> {
                 skip = true;
             }
 
-            "-d" => {
+            "-d" | "--diskcolor" => {
                 if i == arguments.len() - 1 {
                     return Err(String::from("Please specify a color when you use '-d' "));
 
@@ -74,14 +76,24 @@ fn get_colors_from_arguments() -> Result<(Color, Color), String> {
                 skip = true;
             }
 
-            "-h" => {
-                let help_menu = "----------------------------------------------
--h    Show this menu
--c    Define the color of the default gauges
--d    Define the color of the disk gauges
+            "-b" | "--borderless" => {
+                *borders = Borders::NONE;
+            }
+
+            "-B" | "--backgroundless" => {
+                *background = false;
+            }
+
+            "-h" | "--help" => {
+                let help_menu = "
+----------------------------------------------
+-h | --help           Show this menu
+-c | --color          Define the color of the default gauges
+-d | --diskcolor      Define the color of the disk gauges
+-b | --borderless     Show without borders
+-B | --backgroundless Show without background
 ----------------------------------------------
 Color List (case insensitive): 
-
     black,
     red,
     green,
@@ -97,8 +109,9 @@ Color List (case insensitive):
     lightblue,
     lightmagenta,
     lightcyan,
-    white,           ";
-                return Err(format!("{help_menu}"));    
+    white
+";
+                return Err(String::from(help_menu));    
             }
             _ => {
 
