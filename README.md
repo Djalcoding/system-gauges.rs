@@ -7,18 +7,18 @@ System gauges is a rust program that display information about your system in a 
 ## Features ⚙️
 The currently supported informations about your system are : 
 - your **RAM** usage
-- your **SWAP** uage
+- your **SWAP** usage
 - your global **CPU** usage
 - your **Disk** usage
 
 The colors of the main gauges and the disk gauges are customizable.
 
-If you have more than one disk the gauges will be sized approprietly to all fit on the screen.
+If you have more than one disk the gauges will be sized appropriately to all fit on the screen.
 
 ## Installation
 
 ***INSTALLING FROM EXECUTABLE***
-   1. *Grab the latest executable from the relase section*
+   1. *Grab the latest executable from the release section*
    2. Add it to your path
    for bash : 
    ```bash
@@ -49,6 +49,7 @@ echo 'export PATH=$PATH:/home/path/to/current/directory/target/release' >> ~/.ba
 ```zsh 
 echo 'export PATH=$PATH:/home/path/to/current/directory/target/release' >> ~/.zshrc
 ```
+4. Restart your terminal emulator and you're good to go !
 
 ### Prerequisites
 - Rust toolchain  (recommended: use [rustup](https://rustup.rs/)) (for compiling from source)
@@ -66,5 +67,5 @@ system-gauges
 The colors are defined by your Terminal Environment.
 
 ## Notes
-- The script currently as linux support as it uses termion, (it should also work on Mac-OS but it hasn't been tested)
+- The script currently only has Linux support as it uses termion, (it should also work on Mac-OS but it hasn't been tested)
 
