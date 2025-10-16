@@ -58,7 +58,7 @@ Help :
 ```bash
 system-gauges -h
 ```
-Running the programm : 
+Running the program : 
 ```bash
 system-gauges
 ```
