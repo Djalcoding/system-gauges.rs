@@ -4,7 +4,7 @@
 
 System gauges is a rust program that display information about your system in a linear gauge format from the inside of your terminal.
 
-## Features ⚙️
+## Features
 The currently supported informations about your system are : 
 - your **RAM** usage
 - your **SWAP** usage
