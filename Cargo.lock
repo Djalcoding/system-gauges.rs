@@ -152,7 +152,7 @@ dependencies = [
 
 [[package]]
 name = "system-gauges"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "sysinfo",
  "termion 4.0.5",
