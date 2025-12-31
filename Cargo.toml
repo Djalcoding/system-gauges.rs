@@ -6,7 +6,7 @@ description = "A tui program that displays information about your system in a ga
 homepage = "https://github.com/Djalcoding/system-gauges.rs"
 repository = "https://github.com/Djalcoding/system-gauges.rs"
 license-file = "LICENSE.txt"
-readme = "README.md"
+readme = "cratesREADME.md"
 
 [dependencies]
 sysinfo = "0.36.1"

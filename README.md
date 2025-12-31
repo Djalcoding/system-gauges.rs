@@ -17,6 +17,11 @@ If you have more than one disk the gauges will be sized appropriately to all fit
 
 ## Installation
 
+***INSTALLING FROM Crates.io***
+```bash
+    cargo install system-gauges
+```
+
 ***INSTALLING FROM EXECUTABLE***
    1. *Grab the latest executable from the release section*
    2. Add it to your path
@@ -52,7 +57,7 @@ echo 'export PATH=$PATH:/home/path/to/current/directory/target/release' >> ~/.zs
 4. Restart your terminal emulator and you're good to go !
 
 ### Prerequisites
-- Rust toolchain  (recommended: use [rustup](https://rustup.rs/)) (for compiling from source)
+- Rust toolchain  (recommended: use [rustup](https://rustup.rs/)) (for compiling from source and installing from cargo)
 
 ## Usage
 Help :
