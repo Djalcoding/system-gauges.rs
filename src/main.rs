@@ -47,6 +47,9 @@ fn main() -> Result<(), io::Error> {
     Ok(())
 }
 
+/// read arguments from the console
+/// Returns Ok(Configuration) if tye arguments provided are valid.
+/// Otherwise, returns a Err(String) with the error message to display to the user
 fn parse_arguments() -> Result<Configuration, String> {
     let arguments: Vec<String> = env::args().collect();
     let mut color = Color::White;

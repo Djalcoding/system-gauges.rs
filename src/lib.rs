@@ -1,5 +1,4 @@
 pub mod ui {
-
     use sysinfo::{Disks, System};
     use tui::{
         Frame,
@@ -8,10 +7,14 @@ pub mod ui {
         style::Color,
         widgets::Borders,
     };
+    
 
     pub mod colors {
         use tui::style::Color;
-
+        
+        /// This takes an &str as an argument and returns Ok(tui::style::Color).
+        /// if the provided color name (case insensitive) is a recognized color.
+        /// Otherwise, this returns Err(String) with the error message to display to the user.
         pub fn get_color_from_string(text: &str) -> Result<Color, String> {
             let color = match text.to_lowercase().as_str() {
                 "black" => Color::Black,
@@ -38,7 +41,8 @@ pub mod ui {
             Ok(color)
         }
     }
-
+    
+    /// This represent the configuration of the gauge interface for the user
     pub struct Configuration {
         gauge_color: Color,
         disk_color: Color,
@@ -48,6 +52,7 @@ pub mod ui {
     }
 
     impl Configuration {
+        /// Create a new config from the provided arguments
         pub fn new(
             gauge_color: Color,
             disk_color: Color,
@@ -63,21 +68,27 @@ pub mod ui {
                 text_color,
             }
         }
-
+        
+        /// Return the main gauges' color (tui::style::Color)
         fn gauge_color(&self) -> Color {
             self.gauge_color
         }
+        /// Return the disk gauges'color (tui::style::Color)
         fn disk_color(&self) -> Color {
             self.disk_color
         }
+
+        /// Returns a  reference to the borders of the gauges (tui::widgets:Border)
         fn borders(&self) -> &Borders {
             &self.borders
         }
-
+        
+        /// Returns a true bool if the gauges have a background
         fn has_background(&self) -> bool {
             self.background
         }
-
+        
+        /// Return the color of the text in the gauges.
         fn text_color(&self) -> Color {
             self.text_color
         }
@@ -102,6 +113,9 @@ pub mod ui {
         };
 
         use crate::ui::Configuration;
+
+
+        /// Return a gauge widget with the given parameters.
         pub fn build_gauge(used: u64, total: u64, name: String) -> Gauge<'static> {
             let config = Configuration::default();
             build_colorful_gauge(
@@ -115,6 +129,7 @@ pub mod ui {
             )
         }
 
+        /// Same as build_gauge() but with extra customization. (color, borders, background, text_color)
         pub fn build_colorful_gauge(
             used: u64,
             total: u64,
@@ -144,6 +159,7 @@ pub mod ui {
                 .percent(((used as f64 / total as f64) * 100.0) as u16)
         }
 
+        /// Same as build_colorful_gauge() but with percentage instead of arbitrary values
         pub fn build_colorful_gauge_percent(
             used: u16,
             name: String,
@@ -171,21 +187,11 @@ pub mod ui {
                 )
                 .percent(used)
         }
-
-        pub fn build_gauge_percent(used: u16, name: String) -> Gauge<'static> {
-            let config = Configuration::default();
-            build_colorful_gauge_percent(
-                used,
-                name,
-                config.gauge_color(),
-                config.borders(),
-                config.has_background(),
-                config.text_color(),
-            )
-        }
     }
 
     use gauges::*;
+
+    /// This should be called periodicly and builds the current frame for the screen.
     pub fn ui<B: Backend>(f: &mut Frame<B>, config: &Configuration) {
         let mut sys = System::new_all();
         sys.refresh_all();
