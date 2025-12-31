@@ -5,7 +5,7 @@ edition = "2024"
 description = "A tui program that displays information about your system in a gauge format"
 homepage = "https://github.com/Djalcoding/system-gauges.rs"
 repository = "https://github.com/Djalcoding/system-gauges.rs"
-license-file = "LICENCE.txt"
+license-file = "LICENSE.txt"
 readme = "README.md"
 
 [dependencies]
