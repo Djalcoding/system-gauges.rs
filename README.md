@@ -36,5 +36,5 @@ system-gauges
 ```
 
 ## Notes
-- Windows and MacOs support has not been tested but should work
+- MacOs support has not been tested but should work
 - Powered by ratatui
