@@ -11,7 +11,7 @@ The currently supported informations about your system are :
 - your global **CPU** usage
 - your **Disk** usage
 
-The colors of the main gauges and the disk gauges are customizable.
+The colors and borders are customizable 
 
 If you have more than one disk the gauges will be sized appropriately to all fit on the screen.
 
@@ -22,55 +22,21 @@ If you have more than one disk the gauges will be sized appropriately to all fit
     cargo install system-gauges
 ```
 
-***INSTALLING FROM EXECUTABLE***
-   1. *Grab the latest executable from the release section*
-   2. Add it to your path
-   for bash : 
-   ```bash
-   echo 'export PATH=$PATH:/home/path/to/installation/directory' >> ~/.bashrc
-   ```
-     for zsh:
-   ```zsh 
-   echo 'export PATH=$PATH:/home/path/to/installation/directory' >> ~/.zshrc
-   ```
-      
-***COMPILING FROM SOURCE***
-1. *Clone the repo and cd into the directory:*
-```bash
-git clone https://github.com/Djalcoding/system-gauges.rs.git
-cd system-gauges
-```
-
-2. *Compile the binary:* 
-```bash
-cargo build --release
-```
-3. *Add "current working directory"/target/release to path:*
-   for bash : 
-```bash
-echo 'export PATH=$PATH:/home/path/to/current/directory/target/release' >> ~/.bashrc
-```
-  for zsh:
-```zsh 
-echo 'export PATH=$PATH:/home/path/to/current/directory/target/release' >> ~/.zshrc
-```
-4. Restart your terminal emulator and you're good to go !
-
 ### Prerequisites
-- Rust toolchain  (recommended: use [rustup](https://rustup.rs/)) (for compiling from source and installing from cargo)
+- Cargo
 
 ## Usage
 Help :
 ```bash
-system-gauges -h
+system-gauges -help
 ```
 Running the program : 
 ```bash
 system-gauges
 ```
 
-The colors are defined by your Terminal Environment.
-
 ## Notes
-- The script currently only has Linux support as it uses termion, (it should also work on Mac-OS but it hasn't been tested)
+Windows and MacOs support has not been tested but is expected to work
 
+
+Powered by ratatui
