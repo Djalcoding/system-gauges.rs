@@ -1,6 +1,6 @@
 [package]
 name = "system-gauges"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 description = "A tui program that displays information about your system in a gauge format"
 homepage = "https://github.com/Djalcoding/system-gauges.rs"
@@ -9,6 +9,7 @@ license-file = "LICENSE.txt"
 readme = "cratesREADME.md"
 
 [dependencies]
+crossterm = "0.29.0"
+hex = "0.4.3"
+ratatui = "0.30.2"
 sysinfo = "0.36.1"
-termion = "4.0.5"
-tui = { version = "0.19", default-features = false, features = ['termion'] }
