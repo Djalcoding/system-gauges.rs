@@ -1,6 +1,6 @@
 [package]
 name = "system-gauges"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2024"
 description = "A tui program that displays information about your system in a gauge format"
 homepage = "https://github.com/Djalcoding/system-gauges.rs"

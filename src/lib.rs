@@ -2,7 +2,7 @@ pub mod ui {
 
     pub mod constants {
         pub const HELP_MENU: &str = "
-system-gauges 1.4 : Djalcoding
+system-gauges 2.0 : Djalcoding
 ----------------------------------------------
 -help                     Show this menu
 -colors <...>             Define the color for gauges 
