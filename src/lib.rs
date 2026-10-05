@@ -254,6 +254,7 @@ Report bugs to : dbdevbugs@gmail.com
     use crate::ui::{colors::get_color_from_string, constants::HELP_MENU};
 
     pub fn run(config: GaugeConfig, terminal: &mut DefaultTerminal) -> std::io::Result<()> {
+        let mut read_first_key = false;
         loop {
             terminal.draw(|frame| {
                 render(frame, &config);
@@ -261,6 +262,10 @@ Report bugs to : dbdevbugs@gmail.com
             if event::poll(Duration::from_millis(config.refresh_rate))? {
                 let event = event::read()?;
                 if let Key(_) = event {
+                    if cfg!(windows) && !read_first_key{
+                        read_first_key = true;
+                        continue;
+                    }
                     return Ok(());
                 }
             }
