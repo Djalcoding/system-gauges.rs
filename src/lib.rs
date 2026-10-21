@@ -5,13 +5,15 @@ pub mod ui {
     pub mod constants {
         pub const HELP_MENU: &str = "
 system-gauges 2.0 : Djalcoding
-----------------------------------------------
+-- customization ------------------------------
 -help                     Show this menu
 -colors <...>             Define the color for gauges 
 -text-colors <...>        Define the color for gauge text
 -refresh-rate (0..2^16)   Define the refresh rate in ms 
 -no-borders               Remove Borders 
 -no-background            Remove Background for gauges 
+-- formatting --------------------------------
+-format .{precision}{unit} #.2G   Define the formatting for memory usage 
 ----------------------------------------------
 Supported colors are (case insensitive) : 
 black, red, green, yellow, blue, magenta, cyan, gray, darkgray, lightred, lightgreen, 
