@@ -9,7 +9,7 @@ fn main() -> std::io::Result<()> {
         eprintln!("{e}");
         exit(1);
     });
-    ratatui::run(move |terminal| ui::run(config, terminal))?;
+    ratatui::run(move |terminal| ui::run(&config, terminal))?;
 
     Ok(())
 }

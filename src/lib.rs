@@ -9,7 +9,6 @@ system-gauges 2.0 : Djalcoding
 -help                     Show this menu
 -colors <...>             Define the color for gauges 
 -text-colors <...>        Define the color for gauge text
--refresh-rate (0..2^16)   Define the refresh rate in ms 
 -no-borders               Remove Borders 
 -no-background            Remove Background for gauges 
 -- formatting --------------------------------
@@ -25,9 +24,12 @@ Report bugs to : dbdevbugs@gmail.com
 ";
     }
 
-    use std::{env, time::Duration};
+    use std::{env};
 
-    use crossterm::event::{self, Event::Key};
+    use crossterm::event::{
+        self,
+        Event::{Key},
+    };
     use ratatui::{
         DefaultTerminal, Frame,
         layout::{Constraint, Direction::Vertical, Layout},
@@ -76,7 +78,6 @@ Report bugs to : dbdevbugs@gmail.com
 
     /// This represent the configuration of the gauge interface for the user
     pub struct GaugeConfig {
-        pub(super) refresh_rate: u64,
         color: Vec<Color>,
         text_color: Vec<Color>,
         pub borders: Borders,
@@ -109,17 +110,6 @@ Report bugs to : dbdevbugs@gmail.com
                             config.formater = formatter;
                         } else {
                             return Err("Could not parse formatter".to_string());
-                        }
-                        skip = true;
-                    }
-                    "-refresh-rate" => {
-                        if idx == arguments.len() - 1 {
-                            return Err("Please specify a refresh-rate".to_string());
-                        }
-                        if let Ok(refresh_rate) = arguments[idx + 1].parse::<u64>() {
-                            config.refresh_rate = refresh_rate;
-                        } else {
-                            return Err("Could not parse refresh-rate (0-2^16)".to_string());
                         }
                         skip = true;
                     }
@@ -170,7 +160,6 @@ Report bugs to : dbdevbugs@gmail.com
     impl Default for GaugeConfig {
         fn default() -> Self {
             GaugeConfig {
-                refresh_rate: 0,
                 color: vec![],
                 borders: Borders::ALL,
                 has_background: true,
@@ -260,28 +249,33 @@ Report bugs to : dbdevbugs@gmail.com
         ui::{colors::get_color_from_string, constants::HELP_MENU},
     };
 
-    pub fn run(config: GaugeConfig, terminal: &mut DefaultTerminal) -> std::io::Result<()> {
+    pub fn run(config: &GaugeConfig, terminal: &mut DefaultTerminal) -> std::io::Result<()> {
         let mut read_first_key = false;
+        let mut sys = System::new_all();
+        let mut disks = Disks::new_with_refreshed_list();
         loop {
             terminal.draw(|frame| {
-                render(frame, &config);
+                render(frame, &disks, &sys, config);
             })?;
-            if event::poll(Duration::from_millis(config.refresh_rate))? {
+            if event::poll(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL)? {
                 let event = event::read()?;
                 if let Key(_) = event {
                     if cfg!(windows) && !read_first_key {
                         read_first_key = true;
                         continue;
                     }
-                    return Ok(());
+                    break;
                 }
             }
+            sys.refresh_cpu_usage();
+            sys.refresh_memory();
+            sys.refresh_memory();
+            disks.refresh(true);
         }
+        Ok(())
     }
 
-    fn render(frame: &mut Frame, config: &GaugeConfig) {
-        let mut sys = System::new_all();
-        sys.refresh_all();
+    fn render(frame: &mut Frame, disks: &Disks, sys: &System, config: &GaugeConfig) {
         let mut gauge_list = vec![
             build_gauge(
                 sys.used_memory(),
@@ -305,8 +299,7 @@ Report bugs to : dbdevbugs@gmail.com
             ),
         ];
 
-        let disks = Disks::new_with_refreshed_list();
-        for (it, disk) in (3..).zip(&disks) {
+        for (it, disk) in (3..).zip(disks) {
             gauge_list.push(build_gauge(
                 disk.total_space() - disk.available_space(),
                 disk.total_space(),
@@ -319,11 +312,10 @@ Report bugs to : dbdevbugs@gmail.com
         let mut constraints = vec![];
 
         for _ in &gauge_list {
-            constraints.push(Constraint::Percentage((100 / gauge_list.len()) as u16));
+            constraints.push(Constraint::Ratio(1, gauge_list.len() as u32));
         }
 
         let chunks = Layout::new(Vertical, constraints)
-            .margin(1)
             .split(frame.area());
 
         for (i, gauge) in gauge_list.into_iter().enumerate() {
