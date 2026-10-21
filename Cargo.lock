@@ -1333,7 +1333,7 @@ dependencies = [
 
 [[package]]
 name = "system-gauges"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "crossterm",
  "hex",

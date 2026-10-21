@@ -1,3 +1,5 @@
+pub mod formatter;
+
 pub mod ui {
 
     pub mod constants {
@@ -77,26 +79,10 @@ Report bugs to : dbdevbugs@gmail.com
         text_color: Vec<Color>,
         pub borders: Borders,
         pub has_background: bool,
+        pub formater: Formatter,
     }
 
     impl GaugeConfig {
-        /// Create a new config from the provided arguments
-        pub fn new(
-            refresh_rate: u64,
-            color: Vec<Color>,
-            text_color: Vec<Color>,
-            borders: Borders,
-            has_background: bool,
-        ) -> Self {
-            GaugeConfig {
-                refresh_rate,
-                color,
-                borders,
-                has_background,
-                text_color,
-            }
-        }
-
         pub fn from_argument() -> Result<Self, String> {
             let arguments: Vec<String> = env::args().collect();
             let mut config: GaugeConfig = GaugeConfig::default();
@@ -113,9 +99,20 @@ Report bugs to : dbdevbugs@gmail.com
                         add_color = true;
                         add_text = false;
                     }
+                    "-format" => {
+                        if idx == arguments.len() - 1 {
+                            return Err("Please specify a formatter".to_string());
+                        }
+                        if let Some(formatter) = Formatter::from(&arguments[idx + 1]) {
+                            config.formater = formatter;
+                        } else {
+                            return Err("Could not parse formatter".to_string());
+                        }
+                        skip = true;
+                    }
                     "-refresh-rate" => {
                         if idx == arguments.len() - 1 {
-                            return Err("Please specify a refresh_rate".to_string());
+                            return Err("Please specify a refresh-rate".to_string());
                         }
                         if let Ok(refresh_rate) = arguments[idx + 1].parse::<u64>() {
                             config.refresh_rate = refresh_rate;
@@ -176,6 +173,7 @@ Report bugs to : dbdevbugs@gmail.com
                 borders: Borders::ALL,
                 has_background: true,
                 text_color: vec![],
+                formater: Formatter::default(),
             }
         }
     }
@@ -202,7 +200,11 @@ Report bugs to : dbdevbugs@gmail.com
                 .use_unicode(true)
                 .block(
                     Block::default()
-                        .title(format!("{name} USAGE ({used} B / {total} B )",))
+                        .title(format!(
+                            "{name} USAGE ({} / {})",
+                            config.formater.get_byte_display(used),
+                            config.formater.get_byte_display(total)
+                        ))
                         .style(Style::default().fg(text_color))
                         .borders(config.borders),
                 )
@@ -251,7 +253,10 @@ Report bugs to : dbdevbugs@gmail.com
 
     use gauges::*;
 
-    use crate::ui::{colors::get_color_from_string, constants::HELP_MENU};
+    use crate::{
+        formatter::Formatter,
+        ui::{colors::get_color_from_string, constants::HELP_MENU},
+    };
 
     pub fn run(config: GaugeConfig, terminal: &mut DefaultTerminal) -> std::io::Result<()> {
         let mut read_first_key = false;
@@ -262,7 +267,7 @@ Report bugs to : dbdevbugs@gmail.com
             if event::poll(Duration::from_millis(config.refresh_rate))? {
                 let event = event::read()?;
                 if let Key(_) = event {
-                    if cfg!(windows) && !read_first_key{
+                    if cfg!(windows) && !read_first_key {
                         read_first_key = true;
                         continue;
                     }
