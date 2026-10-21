@@ -24,19 +24,16 @@ Report bugs to : dbdevbugs@gmail.com
 ";
     }
 
-    use std::{env};
+    use std::env;
 
-    use crossterm::event::{
-        self,
-        Event::{Key},
-    };
+    use crossterm::event::{self, Event::Key};
     use ratatui::{
         DefaultTerminal, Frame,
         layout::{Constraint, Direction::Vertical, Layout},
         style::Color,
         widgets::Borders,
     };
-    use sysinfo::{Disks, System};
+    use sysinfo::{CpuRefreshKind, Disks, MemoryRefreshKind, RefreshKind, System};
 
     pub mod colors {
         use ratatui::style::Color::{self, Rgb};
@@ -253,6 +250,11 @@ Report bugs to : dbdevbugs@gmail.com
         let mut read_first_key = false;
         let mut sys = System::new_all();
         let mut disks = Disks::new_with_refreshed_list();
+        let refresher = RefreshKind::default()
+            .without_processes()
+            .with_cpu(CpuRefreshKind::default().with_cpu_usage())
+            .with_memory(MemoryRefreshKind::default().with_ram().with_swap());
+
         loop {
             terminal.draw(|frame| {
                 render(frame, &disks, &sys, config);
@@ -267,45 +269,48 @@ Report bugs to : dbdevbugs@gmail.com
                     break;
                 }
             }
-            sys.refresh_cpu_usage();
-            sys.refresh_memory();
-            sys.refresh_memory();
+            sys.refresh_specifics(refresher);
             disks.refresh(true);
         }
         Ok(())
     }
 
     fn render(frame: &mut Frame, disks: &Disks, sys: &System, config: &GaugeConfig) {
+        let mut index = 0..;
         let mut gauge_list = vec![
             build_gauge(
                 sys.used_memory(),
                 sys.total_memory(),
                 String::from("RAM"),
                 config,
-                0,
+                index.next().unwrap(),
             ), // used RAM
-            build_gauge(
-                sys.used_swap(),
-                sys.total_swap(),
-                String::from("SWAP"),
-                config,
-                1,
-            ), // used SWAP
-            build_gauge_percent(
-                sys.global_cpu_usage() as u16,
-                String::from("CPU"),
-                config,
-                2,
-            ),
         ];
+        if sys.total_swap() != 0 {
+            gauge_list.push(
+                build_gauge(
+                    sys.used_swap(),
+                    sys.total_swap(),
+                    String::from("SWAP"),
+                    config,
+                    index.next().unwrap(),
+                ), // used SWAP
+            );
+        }
+        gauge_list.push(build_gauge_percent(
+            sys.global_cpu_usage() as u16,
+            String::from("CPU"),
+            config,
+            index.next().unwrap(),
+        ));
 
-        for (it, disk) in (3..).zip(disks) {
+        for disk in disks {
             gauge_list.push(build_gauge(
                 disk.total_space() - disk.available_space(),
                 disk.total_space(),
                 disk.name().to_str().unwrap_or("Unknow name").to_string(),
                 config,
-                it,
+                index.next().unwrap()
             ));
         }
 
@@ -315,8 +320,7 @@ Report bugs to : dbdevbugs@gmail.com
             constraints.push(Constraint::Ratio(1, gauge_list.len() as u32));
         }
 
-        let chunks = Layout::new(Vertical, constraints)
-            .split(frame.area());
+        let chunks = Layout::new(Vertical, constraints).split(frame.area());
 
         for (i, gauge) in gauge_list.into_iter().enumerate() {
             frame.render_widget(gauge, chunks[i]);
